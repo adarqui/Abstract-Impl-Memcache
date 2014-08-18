@@ -1,0 +1,27 @@
+name:                   Abstract-Impl-Memcache
+version:                0.0.1
+stability:              provisional
+license:                BSD3
+license-file:           LICENSE
+
+cabal-version:          >= 1.8
+build-type:             Simple
+
+author:                 Andrew Darqui <andrew.darqui@gmail.com>
+maintainer:             Andrew Darqui <andrew.darqui@gmail.com>
+homepage:               github.com/adarqui/Abstract-Impl-Memcache
+
+category:               Experimental
+synopsis:               Abstract
+
+Library
+ hs-source-dirs:        src
+ exposed-modules:
+                        Abstract.Impl.Memcache.Counter
+                        Abstract.Impl.Memcache.Counter.Internal
+                        Abstract.Impl.Memcache.Counter.Inc
+                        Abstract.Impl.Memcache.Counter.Dec
+                        Abstract.Impl.Memcache.Counter.Get
+
+ build-depends:         base >= 3 && <5, bytestring, memcached, Abstract-Interfaces
+ ghc-options:           -Wall -rtsopts
