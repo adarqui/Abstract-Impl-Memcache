@@ -1,6 +1,7 @@
 module Abstract.Impl.Memcache.Counter.Internal (
  module Abstract.Interfaces.Counter,
  CounterMemcacheWrapper,
+ counterMemcacheWrapper'Int,
  defaultCounterMemcacheWrapper'Int,
  mkCounter'Memcache'Int
 ) where
@@ -19,13 +20,13 @@ data CounterMemcacheWrapper t = CounterMemcacheWrapper {
 }
 
 
-mkCounter'Memcache'Int :: String -> Int -> IO (Counter IO (CounterMemcacheWrapper Int) Int)
-mkCounter'Memcache'Int cname n = do
- let cmw = defaultCounterMemcacheWrapper'Int cname n
+mkCounter'Memcache'Int :: Int -> CounterMemcacheWrapper Int -> IO (Counter IO (CounterMemcacheWrapper Int) Int)
+mkCounter'Memcache'Int n cmw  = do
+ let cmw' = cmw { _n = n }
+-- let cmw = defaultCounterMemcacheWrapper'Int cname n
  conn <- connect "localhost" 11211
- let cmw' = cmw { _conn = conn, _n = n }
  gentleReset'Int cmw'
- return $ defaultCounterWrapper'Int cname $ cmw'
+ return $ defaultCounterWrapper'Int $ cmw' { _conn = conn }
 
 
 incr'Int :: CounterMemcacheWrapper Int -> IO Int
@@ -71,15 +72,18 @@ gentleReset'Int w = do
  return ()
 
 
-defaultCounterMemcacheWrapper'Int :: String -> Int -> CounterMemcacheWrapper Int
-defaultCounterMemcacheWrapper'Int cname n = CounterMemcacheWrapper { _key = cname, _n = n }
+defaultCounterMemcacheWrapper'Int :: String -> CounterMemcacheWrapper Int
+defaultCounterMemcacheWrapper'Int cname = counterMemcacheWrapper'Int cname
 
 
-defaultCounterWrapper'Int :: String -> CounterMemcacheWrapper Int -> Counter IO (CounterMemcacheWrapper Int) Int
-defaultCounterWrapper'Int cname w =
+counterMemcacheWrapper'Int :: String -> CounterMemcacheWrapper Int
+counterMemcacheWrapper'Int cname = CounterMemcacheWrapper { _key = cname }
+
+
+defaultCounterWrapper'Int :: CounterMemcacheWrapper Int -> Counter IO (CounterMemcacheWrapper Int) Int
+defaultCounterWrapper'Int w =
  Counter {
   _c = w,
-  _cname = cname,
   _incr = incr'Int,
   _incrBy = incrBy'Int,
   _decr = decr'Int,
