@@ -22,11 +22,10 @@ data CounterMemcache t = CounterMemcache {
 
 mkCounter'Memcache'Int :: Int -> CounterMemcache Int -> IO (Counter IO Int)
 mkCounter'Memcache'Int n cmw  = do
- let cmw' = cmw { _n = n }
--- let cmw = defaultCounterMemcache'Int cname n
  conn <- connect "localhost" 11211
+ let cmw' = cmw { _n = n, _conn = conn }
  gentleReset'Int cmw'
- return $ defaultCounter'Memcache'Int $ cmw' { _conn = conn }
+ return $ defaultCounter'Memcache'Int cmw'
 
 
 incr'Int :: CounterMemcache Int -> IO Int
@@ -58,7 +57,6 @@ get'Int w = do
  v <- Network.Memcache.get (_conn w) (_key w)
  return v
  
-
 
 reset'Int :: CounterMemcache Int -> IO ()
 reset'Int w = do
